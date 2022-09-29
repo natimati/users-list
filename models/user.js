@@ -16,6 +16,11 @@ async function getOneByEmail(email) {
     return user;
 };
 
+async function getOneById(id) {
+    const user = await usersCollection.findOne({ where: { id }, rejectOnEmpty: true });
+    return user;
+};
+
 async function getAll() {
     const users = await usersCollection.findAll({ attributes: { exclude: ['password', 'salt'] } });
 
@@ -37,4 +42,4 @@ async function deleteUsers(userIds) {
     return;
 };
 
-module.exports = { createUser, changeUsersStatus, deleteUsers, getAll, getOneByEmail, updateLastLoginTime };
+module.exports = { createUser, changeUsersStatus, deleteUsers, getAll, getOneByEmail, getOneById, updateLastLoginTime };

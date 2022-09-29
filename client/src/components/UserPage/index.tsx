@@ -6,6 +6,7 @@ import { LockFill, TrashFill, UnlockFill } from "react-bootstrap-icons";
 import { blockUsers, deleteUsers, getAllUsers, unblockUsers } from "../../api";
 import { parseJwt } from "../../helpers/auth";
 import { useNavigate } from "react-router-dom";
+import moment from "moment"
 
 type User = {
   id: number;
@@ -26,6 +27,8 @@ const TableContent = (props: Props) => {
   return (
     <>
       {props.users.map(user => {
+        const registrationTime = moment(user.registration_time).format('llll');
+        const lastLoginTime = moment(user.last_login_time).format('llll');
         return (
           <tr key={user.id}>
             <td>
@@ -41,8 +44,8 @@ const TableContent = (props: Props) => {
             <td>{user.id}</td>
             <td>{user.username}</td>
             <td>{user.email}</td>
-            <td>{user.last_login_time}</td>
-            <td>{user.registration_time}</td>
+            <td>{lastLoginTime}</td>
+            <td>{registrationTime}</td>
             <td>{user.is_blocked ? 'blocked' : 'active'}</td>
           </tr>
         )
@@ -121,9 +124,16 @@ const UserPage = () => {
 
   const handleDelete = () => {
     deleteUsers(selectedUserIds).then(() => {
+      const token = localStorage.getItem("token");
+      const decoded = parseJwt(token as string) as { id: number };
+      if (selectedUserIds.includes(decoded.id)) {
+        localStorage.removeItem("token");
+        navigate("/login")
+      };
       setUsers(prev => prev.filter(user => !selectedUserIds.includes(user.id)))
       setSelectedUserIds([])
     })
+    
   }
 
   return (
